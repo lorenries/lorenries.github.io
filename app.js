@@ -22,7 +22,7 @@ $(document).ready(function() {
       console.log(err);
     } else {
       console.log(result);
-      searchKeywords(result)
+      searchKeywords(keywordObj)
       $('.modal').modal('hide');
     }
   })
@@ -104,28 +104,30 @@ $(document).ready(function() {
       if (err) {
         console.error(err);
       } else {
-        console.log(messages)
         for (i=0; i<messages.length; i++) {
           if (messages[i].kind === "post") {
             renderMessage(messages[i]);
-            searchKeywords();
           } else if (messages[i].kind === "keyword") {
-            // searchKeywords(messages[i]);
             console.log(messages[i]);
+            // searchKeywords(messages[i]);
+          } else {
+            console.log("idk");
           }
         }
       }
     });
   }
 
-  function searchKeywords() {
-      // var keyword = keywordObj.keyword;
-      // var context = keywordObj.context;
-      // var re = new RegExp(keyword, "g");
+  function searchKeywords(keywordObj) {
 
-      // if ($(".panel-body:contains('" + keyword + "')")) {
-        var newHTML =  $(".panel-body:contains('Rohingya')").html().replace(/Rohingya/g, "<a href='#' data-toggle='popover' title='Rohingya' data-trigger='focus' data-placement='top' data-content='The Rohingya are a Muslim minority in predominantly Buddhist Myanmar that has been systematically denied the most elemental rights: citizenship, freedom of worship, education, marriage and travel.'>Rohingya</a>") ;
-        $(".panel-body:contains('Rohingya')").html(newHTML);
+      var keyword = keywordObj.keyword;
+      var context = keywordObj.context;
+      var re = new RegExp(keyword, "g");
+
+      // if ($(".panel-body:contains('Rohingya')")) {
+        var oldHTML =  $(".panel-body:contains('" + keyword + "')").html()
+        var newHTML = oldHTML.replace(re, "<a href='#' data-toggle='popover' title='" + keyword + "' data-trigger='focus' data-placement='top' data-content='" + context + "'>" + keyword + "</a>") ;
+        $(".panel-body:contains('" + keyword + "')").html(newHTML);
       // } else {
       //   console.log("idk");
       // }
