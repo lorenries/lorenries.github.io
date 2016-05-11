@@ -2,23 +2,43 @@ var Message_lr = new ParseObjectType("Message_lr")
 
 $(document).ready(function() {
 
-  var $form = $('#message-form');
+  var $postForm = $('#message-form');
   var $messageBoard = $('.message-board');
+  var $keywordForm = $('#keyword-form')
 
-  $form.on("submit", function(event) {
+  $keywordForm.on("submit", function(event){
+    event.preventDefault();
+    var $keyword = $('#keyword').val();
+    var $context = $('#context').val();
+
+    var keywordObj = {
+      kind: "keyword",
+      keyword: $keyword,
+      context: $context
+    }
+
+  Message_lr.create(keywordObj, function(err, result){
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(result);
+      searchKeywords(result)
+      $('.modal').modal('hide');
+    }
+  })
+  })
+
+  $postForm.on("submit", function(event) {
 
     event.preventDefault();
 
     var $title = $('#title').val();
-    var $keyword = $('#keyword').val();
     var $message = $('#message').val();
-    var teaser = $message.trimToLength(120)
 
     var messageObj = {
+      kind: "post",
       title: $title,
-      keyword: $keyword,
       text: $message,
-      teaser: teaser,
       upVotes: 0
     };
 
@@ -28,6 +48,7 @@ $(document).ready(function() {
       } else {
         messageObj.objectId = result.objectId;
         renderMessage(messageObj);
+        // searchKeywords(result);
         $('.modal').modal('hide');
       }
     });
@@ -84,25 +105,31 @@ $(document).ready(function() {
         console.error(err);
       } else {
         console.log(messages)
-        messages.forEach(renderMessage);
-        searchKeywords(messages);
+        for (i=0; i<messages.length; i++) {
+          if (messages[i].kind === "post") {
+            renderMessage(messages[i]);
+            searchKeywords();
+          } else if (messages[i].kind === "keyword") {
+            // searchKeywords(messages[i]);
+            console.log(messages[i]);
+          }
+        }
       }
     });
   }
 
-  function searchKeywords(array) {
-    for (i=0; i<array.length; i++) {
-      var keyword = array[i].keyword;
-      var title = array[i].title;
-      var teaser = array[i].teaser;
-      var re = new RegExp(keyword, "g");
-      if ($(".panel-body:contains('" + keyword + "')")) {
-        var newHTML =  $(".panel-body:contains('" + keyword + "')").html().replace(re, "<a href='#' data-toggle='popover' title='" + title + "' data-trigger='focus' data-placement='top' data-content='" + teaser + "'>" + keyword + "</a>") ;
-        $(".panel-body:contains('" + keyword + "')").html(newHTML);
-      } else {
-        console.log("idk");
-      }
-    }
+  function searchKeywords() {
+      // var keyword = keywordObj.keyword;
+      // var context = keywordObj.context;
+      // var re = new RegExp(keyword, "g");
+
+      // if ($(".panel-body:contains('" + keyword + "')")) {
+        var newHTML =  $(".panel-body:contains('Rohingya')").html().replace(/Rohingya/g, "<a href='#' data-toggle='popover' title='Rohingya' data-trigger='focus' data-placement='top' data-content='The Rohingya are a Muslim minority in predominantly Buddhist Myanmar that has been systematically denied the most elemental rights: citizenship, freedom of worship, education, marriage and travel.'>Rohingya</a>") ;
+        $(".panel-body:contains('Rohingya')").html(newHTML);
+      // } else {
+      //   console.log("idk");
+      // }
+
     $('[data-toggle="popover"]').click(function(event){
       event.preventDefault();
       $('[data-toggle="popover"]').popover();
@@ -120,11 +147,5 @@ $(document).ready(function() {
     var html = template(messageData);
     return html;
   }
-
-  String.prototype.trimToLength = function(m) {
-  return (this.length > m)
-    ? jQuery.trim(this).substring(0, m).split(" ").slice(0, -1).join(" ") + "..."
-    : this;
-};
 
 });
