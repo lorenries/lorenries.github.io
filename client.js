@@ -2,7 +2,7 @@
 
 	if(!(localStorage.getItem("APP_ID") && localStorage.getItem("API_KEY") && localStorage.getItem("API_HOST"))){
 		var err = "Please set configuration vars by visiting config.html in a browser";
-		alert(err)
+		window.location.href = '/config.html';
 	}
 
 	const ParseObjectType = function(objName) {
